@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多页网页版笔记本</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        select {
+            font-size: 16px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ZYN的网页版笔记本</h1>
+    <label for="pageSelect">选择笔记页：</label>
+    <select id="pageSelect" onchange="loadNote()">
+    </select>
+    <button onclick="addPage()">新增页面</button>
+    <br><br>
+    <textarea id="note" placeholder="在这里输入你的笔记..."></textarea>
+    <br>
+    <button onclick="clearNote()">清空笔记</button>
+    <script>
+        function getCurrentPage() {
+            return document.getElementById('pageSelect').value;
+        }
+
+        function loadNote() {
+            const currentPage = getCurrentPage();
+            document.getElementById('note').value = localStorage.getItem(currentPage) || '';
+        }
+
+        function saveNote() {
+            const currentPage = getCurrentPage();
+            const noteContent = document.getElementById('note').value;
+            localStorage.setItem(currentPage, noteContent);
+        }
+        
+        function clearNote() {
+            const currentPage = getCurrentPage();
+            document.getElementById('note').value = '';
+            localStorage.removeItem(currentPage);
+        }
+
+        function addPage() {
+            const pageName = prompt("请输入新页面名称：");
+            if (pageName) {
+                const pageSelect = document.getElementById('pageSelect');
+                const option = document.createElement('option');
+                option.value = pageName;
+                option.textContent = pageName;
+                pageSelect.appendChild(option);
+                pageSelect.value = pageName;
+                savePages();
+                loadNote();
+            }
+        }
+
+        function savePages() {
+            const pages = [];
+            document.querySelectorAll('#pageSelect option').forEach(opt => pages.push(opt.value));
+            localStorage.setItem('pages', JSON.stringify(pages));
+        }
+
+        function loadPages() {
+            const pageSelect = document.getElementById('pageSelect');
+            pageSelect.innerHTML = '';
+            const pages = JSON.parse(localStorage.getItem('pages')) || ['默认页面'];
+            pages.forEach(page => {
+                const option = document.createElement('option');
+                option.value = page;
+                option.textContent = page;
+                pageSelect.appendChild(option);
+            });
+            loadNote();
+        }
+
+        document.getElementById('note').addEventListener('input', saveNote);
+        window.onload = loadPages;
+    </script>
+</body>
+</html>
